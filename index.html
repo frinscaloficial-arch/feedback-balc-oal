@@ -29,7 +29,6 @@
 
         .container { width: 100%; max-width: 550px; text-align: center; }
         
-        /* Transições de Tela */
         .step { display: none; flex-direction: column; align-items: center; width: 100%; }
         .step.active { display: flex; animation: fadeIn 0.4s ease; }
 
@@ -47,7 +46,6 @@
             box-sizing: border-box;
         }
 
-        /* NPS e Tags */
         .question { font-size: 1.1rem; font-weight: 600; margin-bottom: 25px; }
         .nps-container { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin-bottom: 30px; }
         .nps-item input { display: none; }
@@ -65,21 +63,20 @@
         .tag-section { margin: 20px 0; }
         .tag-title { font-size: 1.1rem; margin-bottom: 12px; }
         .tag-title b { color: var(--primary-blue); }
-        .tags-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; }
+        .tags-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
         .tag-item input { display: none; }
         .tag-label {
             padding: 8px 18px; border: 1px solid var(--border-light);
             border-radius: 25px; font-size: 0.9rem; color: #7F8C8D; cursor: pointer;
+            display: block;
         }
         .tag-item input:checked + .tag-label { background: var(--tag-selected); color: white; border-color: var(--tag-selected); }
 
-        /* Tela de Sucesso */
         .icon-check { width: 100px; height: 100px; background: #2ECC71; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px; }
         .icon-check::after { content: '✓'; color: white; font-size: 60px; }
         .success-text { font-size: 1.1rem; line-height: 1.5; color: #444; }
         .timer-text { margin-top: 30px; font-size: 1.1rem; font-weight: 400; }
 
-        /* Botões */
         .btn {
             background-color: var(--btn-green);
             color: white; border: none; border-radius: 40px;
@@ -87,10 +84,8 @@
             cursor: pointer; display: flex; align-items: center; gap: 15px;
             margin-top: 30px; transition: 0.3s; text-transform: uppercase;
         }
-        .btn:hover { filter: brightness(1.1); }
         .btn-enviar { margin: 30px auto 0; font-size: 1.2rem; }
-
-        .logo { margin-top: 50px; width: 180px; gap: 10px; }
+        .logo { margin-top: 50px; width: 180px; }
     </style>
 </head>
 <body>
@@ -121,26 +116,27 @@
                     </div>
                 </form>
             </div>
-            <button class="btn btn-enviar" onclick="enviarDados()">Enviar</button>
+            <button class="btn btn-enviar" onclick="enviarDados()">Enviar Avaliação</button>
         </div>
 
         <div id="step2" class="step">
-            <h1 style="font-size: 1.8rem;">Agradecemos por<br>compartilhar sua opinião.</h1>
+            <h1 style="font-size: 1.8rem;">Muito obrigado!</h1>
             <div class="card">
                 <div class="icon-check"></div>
-                <p class="success-text">Seu feedback foi recebido com sucesso e é fundamental para que possamos aprimorar continuamente nosso atendimento.</p>
+                <p class="success-text">Sua opinião ajuda a melhorar nosso serviço continuamente.</p>
             </div>
-            <div class="timer-text">Tempo para reiniciar a pesquisa: <b id="timer">10</b></div>
+            <div class="timer-text">Reiniciando em: <b id="timer">10</b>s</div>
         </div>
 
-        <img src="g15.png" class="logo" alt="Logo Frinscal e Comercial">
+        <img src="g15.png" class="logo" alt="Logo">
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxCWztTFmHkLnaxsXS-ztWOkC8JiHCb4YQSklRgyyHMT5qvQGE1F_6cVHqLnx2c2c0LkQ/exec';
+        // ATENÇÃO: Substitua pelo seu link de implantação atualizado!
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxCWztTFmHkLnaxsXS-ztWOkC8JiHCb4YQSklRgyyHMT5qvQGE1F_6cVHqLnx2c2c0LkQ/exec'; 
         const tags = ["Pagamento", "Recebimento", "Qualidade", "Atendimento", "Ambiente"];
         
-        // Popular Tags
+        // Gerar Tags
         ['pos-grid', 'neg-grid'].forEach(id => {
             const container = document.getElementById(id);
             const prefix = id.split('-')[0];
@@ -157,42 +153,35 @@
         function enviarDados() {
             const form = document.getElementById('feedbackForm');
             const nota = form.querySelector('input[name="nota"]:checked');
-    
-            if(!nota) { 
-                alert("Selecione uma nota de 0 a 10."); 
-                return; 
-            }
+            
+            if(!nota) { alert("Por favor, selecione uma nota."); return; }
 
             const btn = document.querySelector('.btn-enviar');
-            const textoOriginal = btn.innerText;
             btn.innerText = "Enviando...";
             btn.disabled = true;
-        
+
             const positivos = Array.from(form.querySelectorAll('input[name="pos"]:checked')).map(i => i.value).join(", ");
             const negativos = Array.from(form.querySelectorAll('input[name="neg"]:checked')).map(i => i.value).join(", ");
-        
-            // CORREÇÃO 1: Usar URLSearchParams em vez de FormData para o Google entender os parâmetros
+
+            // CORREÇÃO: Usar URLSearchParams para compatibilidade total com e.parameter
             const params = new URLSearchParams();
             params.append("pedido", "Não informado");
             params.append("nota", nota.value);
             params.append("positivos", positivos);
             params.append("negativos", negativos);
-        
-            // CORREÇÃO 2: Adicionar o modo 'no-cors' para evitar erro de redirecionamento do Google
+
             fetch(scriptURL, { 
                 method: 'POST', 
                 body: params,
-                mode: 'no-cors' 
+                mode: 'no-cors' // Crucial para o Google Apps Script
             })
             .then(() => {
-                // Com 'no-cors', ele sempre cairá aqui se a rede estiver ok
-                nextStep(2); 
+                nextStep(2);
                 startTimer();
             })
-            .catch((error) => {
-                console.error("Erro:", error);
-                alert("Erro ao enviar. Verifique sua conexão.");
-                btn.innerText = textoOriginal;
+            .catch(() => {
+                alert("Erro de conexão. Tente novamente.");
+                btn.innerText = "Enviar Avaliação";
                 btn.disabled = false;
             });
         }
@@ -205,7 +194,7 @@
                 timerEl.innerText = timeLeft;
                 if(timeLeft <= 0) {
                     clearInterval(interval);
-                    window.location.reload(); // Reinicia o formulário
+                    window.location.reload();
                 }
             }, 1000);
         }
