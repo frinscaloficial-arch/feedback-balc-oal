@@ -157,35 +157,44 @@
         function enviarDados() {
             const form = document.getElementById('feedbackForm');
             const nota = form.querySelector('input[name="nota"]:checked');
-            
+    
             if(!nota) { 
                 alert("Selecione uma nota de 0 a 10."); 
                 return; 
             }
 
             const btn = document.querySelector('.btn-enviar');
+            const textoOriginal = btn.innerText;
             btn.innerText = "Enviando...";
             btn.disabled = true;
-
+        
             const positivos = Array.from(form.querySelectorAll('input[name="pos"]:checked')).map(i => i.value).join(", ");
             const negativos = Array.from(form.querySelectorAll('input[name="neg"]:checked')).map(i => i.value).join(", ");
-
-            const formData = new FormData();
-            formData.append("pedido", "Não informado"); // Valor padrão já que a tela foi removida
-            formData.append("nota", nota.value);
-            formData.append("positivos", positivos);
-            formData.append("negativos", negativos);
-
-            fetch(scriptURL, { method: 'POST', body: formData })
-                .then(() => {
-                    nextStep(2); // Vai para a tela de sucesso
-                    startTimer();
-                })
-                .catch(() => {
-                    alert("Erro ao enviar. Tente novamente.");
-                    btn.innerText = "Enviar";
-                    btn.disabled = false;
-                });
+        
+            // CORREÇÃO 1: Usar URLSearchParams em vez de FormData para o Google entender os parâmetros
+            const params = new URLSearchParams();
+            params.append("pedido", "Não informado");
+            params.append("nota", nota.value);
+            params.append("positivos", positivos);
+            params.append("negativos", negativos);
+        
+            // CORREÇÃO 2: Adicionar o modo 'no-cors' para evitar erro de redirecionamento do Google
+            fetch(scriptURL, { 
+                method: 'POST', 
+                body: params,
+                mode: 'no-cors' 
+            })
+            .then(() => {
+                // Com 'no-cors', ele sempre cairá aqui se a rede estiver ok
+                nextStep(2); 
+                startTimer();
+            })
+            .catch((error) => {
+                console.error("Erro:", error);
+                alert("Erro ao enviar. Verifique sua conexão.");
+                btn.innerText = textoOriginal;
+                btn.disabled = false;
+            });
         }
 
         function startTimer() {
