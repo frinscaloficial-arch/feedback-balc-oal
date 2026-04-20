@@ -171,7 +171,7 @@
             const negativos = Array.from(form.querySelectorAll('input[name="neg"]:checked')).map(i => i.value).join(", ");
 
             const formData = new FormData();
-            // formData.append("pedido", "Não informado"); // Valor padrão já que a tela foi removida
+            formData.append("pedido", "Não informado"); // Valor padrão já que a tela foi removida
             formData.append("nota", nota.value);
             formData.append("positivos", positivos);
             formData.append("negativos", negativos);
